@@ -1,0 +1,25 @@
+# SGCI-Adm — ambiente local (interface Blade + Bootstrap). Sem banco: fala só com a SGCI-API.
+# Uso: docker compose up -d --build
+# A API roda em outro compose (SGCI-API); daqui ela é vista no host, porta 8000.
+services:
+  adm:
+    build: .
+    container_name: sgci-adm
+    ports:
+      - "8001:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      APACHE_DOCUMENT_ROOT: public/
+      PHP_EXTENSIONS: "gd intl"
+      PHP_INI_ERROR_REPORTING: E_ALL
+      APP_ENV: local
+      APP_DEBUG: "true"
+      DB_CONNECTION: "null"
+      SESSION_DRIVER: file
+      CACHE_STORE: file
+      QUEUE_CONNECTION: sync
+      SGCI_API_URL: ${SGCI_API_URL:-http://host.docker.internal:8000/api}
+      STARTUP_COMMAND_1: composer install --no-interaction
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
